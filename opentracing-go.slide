@@ -1,0 +1,143 @@
+Open Tracing
+with Go
+2 Sep 2017
+
+Loh Siu Yin
+Technology Consultant, Beyond Broadcast LLP
+siuyin@beyondbroadcast.com
+
+* OpenTracing
+
+*1* through *8* is a parent trace *span*.
+.image images/trace.png 500 _
+
+* Supported Languages
+.image images/lang_support.png
+
+* Components of a tracing system
+Application --> Opentracing API --> tracer (eg. Jaeger)
+
+.image images/jaeger.png 500 _
+
+* Switchout to a different tracer
+Application --> Opentracing API --> tracer (eg. Appdash. Clients: go and python)
+.image images/appdash.png
+
+* Hello World: A simple web app.
+.play hello/main.go
+
+* Open browser to localhost:8080
+
+* Now lets trace it
+
+* Start a tracer
+Let's use sourcegraph's appdash tracer
+
+  go get -u sourcegraph.com/sourcegraph/appdash/cmd/appdash
+
+Run an appdash server.
+
+  appdash serve --trace
+
+Note the collector address:
+
+  localhost:7701
+
+* Instrument our web app with the opentracing API
+
+.code trace01/main.go /010/,/020/
+
+- Initialize the global opentracing tracer
+- As an appdash opentracing tracer
+- Pointing to a remote appdash collector
+
+* Start a span
+.code trace01/main.go /030/,/040/
+
+- Start a span, name it "GET /req"
+- Close the span by calling Finish()
+- On execution, span is sent to the trace. Get trace ID from appdash trace log.
+
+* Demo:
+- Issue request from web app
+- Look up trace ID from appdash trace log
+- Review trace data on appdash tracer UI
+
+* Distributed tracing
+.code trace02/main.go /030/,/040/
+- Call remote service on port 8081
+- Inject span context into the request header
+
+* Our worker service
+.code trace02/work/main.go /010/,/020/
+
+- Extract span context from request
+- Start a child StartSpan
+- Mark completion with Finish()
+
+* dbQuery
+
+.code trace02/work/main.go /030/,/040/
+
+dbQuery:
+
+- receives the parent span content via parameter sc
+- starts its only child span
+
+
+* Trace our two component system
+
+  go run trace02/main.go
+  go run trace02/work/main.go
+
+- Issue a request on 8080
+- Lookup trace ID from appdash trace log
+- Note trace now includes the sub-spans on 8081
+
+* What did we just see?
+- We created a root span on 8080 when we triggered a request.
+- We injected a span context into a http request header via opentracing.HTTPHeadersCarrier
+- That request was carried over to 8081.
+- On 8081 we extracted that span context and started a child span.
+- The child span on 8081 passed its context to a local function which itself started a child span.
+- Both 8080 and 8081 processes reported to the opentracing appdash collector via a opentracing tracer.
+
+* Sending span contexts across process boundaries
+
+opentracing defines two built in carriers.
+
+HTTPHeadersCarrier:
+
+  type HTTPHeadersCarrier http.Header
+
+TextMapCarrier:
+
+  type TextMapCarrier map[string]string
+
+In previous examples we sent span contexts via REST calls using data injected into request http headers.
+
+For the generic case we can send span contexts over the wire by serialising a map[string]string.
+
+* Network DB query client request
+
+.code trace03/work/main.go /010/,/020/
+
+- inject span context into  map[string]string of type opentracing.TextMap
+- serialize it for transmission over the wire
+
+* Network DB server
+
+.code trace03/work/main.go /030/,/040/
+
+- deserialize bytes into map[string]string
+- cast it to opentracing.TextMap
+- extract span context from opentracing.TextMap
+
+* Demo: HTTPHeadersCarrier and TextMapCarrier
+
+        go run trace02/main.go
+        go run trace02/work/main.go
+
+- Issue a request on 8080
+- Lookup trace ID from appdash trace log
+- Note Net DB Query child span
