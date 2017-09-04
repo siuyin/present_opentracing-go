@@ -142,13 +142,13 @@ For the generic case we can send span contexts over the wire by serialising a ma
 - Lookup trace ID from appdash trace log
 - Note Net DB Query child span
 
-* span tags and logs
+* Span tags and logs
 
 A *tag* is a label that is applicable to the whole span, i.e. the root span and all its children.
 
 .code trace03/main.go /030/,/040/
 
-* span logs
+* Span logs
 
 A *log* is appropriate to record a time-stamped event.
 
@@ -212,6 +212,8 @@ Important:
 
 * jaeger trace details
 .image images/jaeger-trace-details.png 400 _
+
+right-click on image open in new tab to display full resolution
 
 * Automatic service dependency graphing
 
