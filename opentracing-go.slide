@@ -135,9 +135,90 @@ For the generic case we can send span contexts over the wire by serialising a ma
 
 * Demo: HTTPHeadersCarrier and TextMapCarrier
 
-        go run trace02/main.go
-        go run trace02/work/main.go
+        go run trace03/main.go
+        go run trace03/work/main.go
 
 - Issue a request on 8080
 - Lookup trace ID from appdash trace log
 - Note Net DB Query child span
+
+* span tags and logs
+
+A *tag* is a label that is applicable to the whole span, i.e. the root span and all its children.
+
+.code trace03/main.go /030/,/040/
+
+* span logs
+
+A *log* is appropriate to record a time-stamped event.
+
+.code trace03/work/main.go /030/,/040/
+
+* Swaping out tracer appdash for jaeger
+
+appdash
+.code trace01/main.go /010/,020/
+
+jaeger
+.code trace-jaeger/main.go /010/,/011/
+
+- imports are different
+
+* Tracer initialisation: appdash
+
+.code trace02/main.go /010/,/020/
+
+- initilisation code points to an appdash collector
+
+* Tracer initialisation: jaeger
+
+.code trace-jaeger/main.go /012/,/013/
+- jaeger is initialized via a jaeger configuration struct
+
+* jaeger global tracer
+.code trace-jaeger/main.go /014/,/015/
+
+- jaeger's global tracer has a *service*name*: myWebApp in this case
+
+* "port 8081" service trace initialization
+.code trace-jaeger/work/main.go /011/,/012/
+- the 8081 service is now known to jaeger as myWebSvc
+
+* jaeger collector startup
+- jaeger tracing is complex with storage in cassandra (default) or elasticsearch
+- For testing purposes, an all-in-one docker image is available
+
+  $ docker run -d --rm -p6831:6831/udp -p6832:6832/udp -p5775:5775/udp -p16686:16686 jaegertracing/all-in-one:latest
+
+- The udp ports accept client connects via jaeger.thrift (compact), jaeger.thrift (binary)  and zipkin.thrift (compact) respectively. Protocol used depends on client configuration.
+
+Important:
+
+- jaeger client talks to jaeger-agent (in the all-in-one docker image) via UDP.
+- application and jaeger-agent must be on the same host. Client API expects to see jaeger agent on localhost.
+
+* jaeger UI
+
+.image images/jaeger-ui.png 500 _
+
+- UI is accessed via web browser on port 16686
+
+* Sample jaeger traces
+
+.image images/jaeger-trace-sample.png 300 _
+
+- Sortable: Most Recent, Longest First, Shortest First, Most Spans, Least Spans
+- Service names displayed and colour coded
+
+* jaeger trace details
+.image images/jaeger-trace-details.png 400 _
+
+* Automatic service dependency graphing
+
+.image images/jaeger-dependency.png _ 600
+
+- myWebApp called myWebSvc 2 times
+
+* Presentation and code download
+
+.link https://github.com/siuyin/present_opentracing-go

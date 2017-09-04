@@ -28,6 +28,7 @@ func main() {
 	//030 OMIT
 	http.HandleFunc("/req", func(w http.ResponseWriter, r *http.Request) {
 		sp := opentracing.StartSpan("GET /req")
+		sp = sp.SetTag("Operation", "doing work by getting /req")
 		defer sp.Finish()
 
 		// call a remote service
