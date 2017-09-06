@@ -149,7 +149,7 @@ For the generic case we can send span contexts over the wire by serialising a ma
 
 * Span tags and logs
 
-A *tag* is a label that is applicable to the whole span, i.e. the root span and all its children.
+A *tag* is a label that is applicable to a span. It does not cross process boundaries.
 
 .code trace03/main.go /030/,/040/
 
