@@ -192,15 +192,48 @@ jaeger
 - jaeger tracing is complex with storage in cassandra (default) or elasticsearch
 - For testing purposes, an all-in-one docker image is available
 
-  $ docker run -d --rm -p6831:6831/udp -p6832:6832/udp -p5775:5775/udp \
-      -p16686:16686 jaegertracing/all-in-one:latest
+  $ docker run -d --rm \
+      -p 14267:14267 -p 16686:16686 \
+      jaegertracing/all-in-one:latest
 
-- The udp ports accept client connects via jaeger.thrift (compact), jaeger.thrift (binary)  and zipkin.thrift (compact) respectively. Protocol used depends on client configuration.
+- Port 14267 is the jaeger collector
+- Port 16686 is the jaeger UI
+
+
+* jaeger agent
+
+  go get -u github.com/uber/jaeger/cmd/agent
+  cd $GOPATH/bin
+  mv agent jaeger-agent
+
+  $ jaeger-agent --collector.host-port=192.168.99.100:14267
+
+- On my machine docker is running on 192.18.99.100
 
 Important:
 
-- jaeger client talks to jaeger-agent (in the all-in-one docker image) via UDP.
-- application and jaeger-agent must be on the same host. Client API expects to see jaeger agent on localhost.
+- applications connect via opentracing API to jaeger-client
+- jaeger-client talks to jaeger-agent via UDP
+- application and jaeger-agent must be on the same host. jaeger client API expects to see jaeger agent on localhost.
+
+* Demo
+
+
+Issue request
+
+  http://127.0.0.1:8080
+
+jaeger UI
+
+  http://192.168.99.100:16686
+
+Show:
+
+- Service selection
+- Trace details, tags, logs
+- Service dependency map
+
+* jaeger offline screenshots
 
 * jaeger UI
 
