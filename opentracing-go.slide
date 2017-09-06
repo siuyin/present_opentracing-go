@@ -8,7 +8,8 @@ siuyin@beyondbroadcast.com
 
 * OpenTracing
 
-*1* through *8* is a parent trace *span*.
+1 through 8 is a *trace*. *span* 1 - 8 records process start and end times.
+
 .image images/trace.png 500 _
 
 * Supported Languages
