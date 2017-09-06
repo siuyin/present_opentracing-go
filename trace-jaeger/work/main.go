@@ -61,6 +61,7 @@ func main() {
 			opentracing.TextMapCarrier(carrier))
 
 		b, _ := json.Marshal(carrier)
+		time.Sleep(time.Millisecond) // simulate network latency
 		networkDBQuery(b)
 	})
 	//020 OMIT

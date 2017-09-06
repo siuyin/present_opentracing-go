@@ -262,3 +262,7 @@ right-click on image open in new tab to display full resolution
 * Presentation and code download
 
 .link https://github.com/siuyin/present_opentracing-go
+
+For deployment on kubernetes see:
+
+.link https://github.com/jaegertracing/jaeger-kubernetes
