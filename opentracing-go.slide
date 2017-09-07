@@ -193,7 +193,7 @@ jaeger
 - jaeger tracing is complex with storage in cassandra (default) or elasticsearch
 - For testing purposes, an all-in-one docker image is available
 
-  $ docker run -d --rm \
+  $ docker run --rm \
       -p 14267:14267 -p 16686:16686 \
       jaegertracing/all-in-one:latest
 
@@ -203,6 +203,9 @@ jaeger
 
 * jaeger agent
 
+  go get -u github.com/uber/jaeger
+  cd $GOPATH/src/github.com/uber/jaeger
+  make install
   go get -u github.com/uber/jaeger/cmd/agent
   cd $GOPATH/bin
   mv agent jaeger-agent
