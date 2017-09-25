@@ -25,7 +25,7 @@ Application --> Opentracing API --> tracer (eg. Appdash. Clients: go and python)
 .image images/appdash.png
 
 * Hello World: A simple web app.
-.play hello/main.go
+.play hello/main.go /010/,/020/
 
 * Open browser to localhost:8080
 
