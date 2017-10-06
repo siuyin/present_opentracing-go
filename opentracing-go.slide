@@ -211,8 +211,9 @@ jaeger
   mv agent jaeger-agent
 
   $ jaeger-agent --collector.host-port=192.168.99.100:14267
+  $ jaeger-agent --collector.host-port=127.0.0.1:14267
 
-- On my machine docker is running on 192.18.99.100
+- On my other machine docker is running on 192.168.99.100
 
 Important:
 
@@ -222,6 +223,10 @@ Important:
 
 * Demo
 
+Run Servers
+
+  go run trace-jaeger/main.go
+  go run trace-jaeger/work/main.go
 
 Issue request
 
@@ -230,6 +235,7 @@ Issue request
 jaeger UI
 
   http://192.168.99.100:16686
+  http://127.0.0.1:16686
 
 Show:
 
